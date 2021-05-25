@@ -1,0 +1,213 @@
+<!--Inicio del container-->
+<div class="container">
+    <div class="titulo">
+        <h1>
+            Bienvenido a gráficas
+        </h1>
+        <br>
+        <div class="row">
+            
+            <div id="chart"></div>
+            <div id="chart2"></div>
+            <div id="chart3"></div>
+        </div>
+    <!--Fin del div titulo-->
+    </div>
+<!--Fin del container-->
+</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+        var timeFormat = "MM";
+    var productos={{{productos}}};
+    var ganancias={{{ganancias}}};
+    var ventas={{{ventas}}};
+    ganancias.shift();
+    ventas.shift();
+    var mes = [];
+    var gananciaM = [];
+
+    var nombre=[];
+    var ganancia=[];
+    
+    var id=[];
+    var cantidadVendida=[];
+
+    
+    function acomodoMensual(){
+        for(var i = 0; i<ganancias.length; i++){
+          console.log(ganancias[i].Mes);
+            mes.push(ganancias[i].Mes);
+            gananciaM.push(ganancias[i].Ganancia);
+        }
+    }
+
+    function acomodoVentas(){
+        for(var i = 0; i<ventas.length-1; i++){
+            id.push(ventas[i].Id);
+            cantidadVendida.push(ventas[i].CantidadVendida);
+        }
+    }
+    function acomodoProductos(){
+        for(var i = 0; i<ventas.length-1; i++){
+            console.log(ventas[i].Id);
+            nombre.push(ventas[i].Id);
+          ganancia.push(ventas[i].Ganancia);
+        } 
+    }
+    
+    acomodoMensual();
+    acomodoProductos();
+    acomodoVentas();
+
+graficar("chart","#chart", gananciaM, "#3e95cd", "Ganancias Mensuales", mes,"line");
+graficarBarra("chart3","#chart3", cantidadVendida, "#3e95cd", "Ventas de Productos", id,"bar");
+graficarBarra("chart2","#chart2", ganancia, "#3e95cd", "Ganancias", nombre, "bar");
+
+function graficar(nombre, divHTML, datos, color, unidad, fecha, tipo){
+ var series;
+ series = generar(datos, unidad, fecha);
+ console.log(nombre + datos);
+ var options1 = {
+  chart: {
+    id: nombre,
+    type: tipo,
+    height: 230,
+    foreColor: "#000",
+    selection: {
+    xaxis: {
+        min: new Date(fecha[0]).getTime(),
+        max: new Date(fecha[fecha.length]).getTime()
+      }
+    }
+  },
+  colors: [color],
+  stroke: {
+    width: 3
+  },
+  grid: {
+    borderColor: "#555",
+    clipMarkers: true,
+    yaxis: {
+      lines: {
+        show: true
+      }
+    }
+  },
+  dataLabels: {
+    enabled: false
+  },
+  fill: {
+    gradient: {
+      enabled: true,
+      opacityFrom: 0.55,
+      opacityTo: 0
+    }
+  },
+  markers: {
+    size: 4,
+    colors: [color],
+    strokeColor: color,
+    strokeWidth: 3
+  },
+  series: [series],
+  tooltip: {
+    theme: "light"
+  },
+  yaxis: {
+    min: 3,
+    tickAmount: 4,
+    title: {
+            text: unidad,
+          }
+    
+  }
+};
+
+var chart1 = new ApexCharts(document.querySelector(divHTML), options1);
+
+chart1.render();
+}
+function graficarBarra(nombre, divHTML, datos, color, unidad, fecha, tipo){
+
+ console.log(nombre + datos + fecha);
+
+ var options2 = {
+  series: [{
+          name: unidad,
+          data: datos
+        }],
+        chart: {
+          height: 350,
+          type: 'bar',
+        },
+        plotOptions: {
+          bar: {
+            borderRadius: 5,
+            columnWidth: '50%',
+          }
+        },
+        dataLabels: {
+          enabled: true
+        },
+        stroke: {
+          width: 2
+        },
+        
+        grid: {
+          row: {
+            colors: ['#fff', '#f2f2f2']
+          }
+        },
+        xaxis: {
+          labels: {
+            rotate: -45
+          },
+          categories: fecha
+        },
+        yaxis: {
+          title: {
+            text: unidad,
+          }
+        },
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shade: 'light',
+            type: "horizontal",
+            shadeIntensity: 0.25,
+            gradientToColors: undefined,
+            inverseColors: true,
+            opacityFrom: 0.85,
+            opacityTo: 0.85,
+            stops: [50, 0, 100]
+          },
+        }
+        };
+
+var chart2 = new ApexCharts(document.querySelector(divHTML), options2);
+
+chart2.render();
+}
+
+
+
+function generar(datos, unidad, fecha) {
+  var data = [];
+  console.log(fecha);
+  for(let i = 0; i<fecha.length; i++){
+    var x = fecha[i];
+    var y = datos[i];
+    console.log(x +"  "+y);
+    data.push([x, y]);
+  }
+  
+  var series = {
+  name: unidad,
+  data: data
+  }
+  
+  console.log(series);
+  return series;
+}
+</script>

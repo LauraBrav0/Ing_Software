@@ -1,0 +1,172 @@
+
+<div class="container">
+
+<h1>Bienvenido a reportes</h1>
+<head>
+  <script type="text/javascript">
+  function guardarReporte(){
+      
+      var doc = new jsPDF('p', 'pt', 'a4');
+var elementHTML = $('#tablePrint').html();
+var specialElementHandlers = {
+        '#editor': function (element, renderer) {
+            return true;
+        }
+    };
+
+doc.fromHTML(elementHTML, 15,15, {
+    'width': 170,
+    'elementHandlers': specialElementHandlers
+      });
+
+
+      doc.save('reporte.pdf');
+  }
+  </script>
+  
+
+
+    <style>
+        table {
+    border-collapse: collapse;
+}
+ 
+table,
+th,
+td {
+    border: 1px solid black;
+}
+ 
+th,
+td {
+    padding: 5px;
+}
+    </style>
+    
+</head>
+
+
+Nombre de usuario
+<input type="text" id="usuario" />
+<br>
+<h2>Fecha de reporte</h2>
+Dia
+<input type="number" min="1" max="31" id="dia" />
+Mes
+<input type="number" min="1" max="12" id="mes" />
+Año
+<input type="number"  id="año" min="2021" />
+<input type="button" name="Submit" value="Generar reporte" onClick="generarReporte()">
+
+
+<br>
+
+</div>
+<br>
+<div id="editor"></div>
+<div id="tablePrint"> </div>
+<input type="button" name="Submit" value="Guardar reporte" onClick="guardarReporte()">
+
+
+
+
+
+<script>
+var ventas={{{ventas}}};
+var listaVentas=ventas.filter(Boolean);
+
+var compras={{{compras}}};
+var listaCompras=compras.filter(Boolean);
+
+var producto={{{productos}}};
+
+
+function obtenerVentas(mes){
+    var ganancias=0;
+    for (var i=0;i<listaVentas.length;i++) {
+        if(listaVentas[i].Mes==document.getElementById("mes").value){
+        ganancias=ganancias+listaVentas[i].Ganancia;
+    }  
+  
+}
+   
+    return ganancias;
+}
+
+function obtenerCompras(mes){
+    var aux;
+    var gastos=0;
+for(var i=0;i<listaCompras.length;i++){
+    if(listaCompras[i].Mes==mes){
+    aux=listaCompras[i].IdProducto;
+    for (const property in producto){
+        if(aux==producto[property].Id){
+         gastos=gastos+(listaCompras[i].Cantidad*producto[property].Precio);   
+        }
+    }
+     }   
+    }
+    return gastos;
+}
+
+function validacion(){
+    var bandera=false;
+    if(document.getElementById("usuario").value!=null ){
+      if(document.getElementById("dia").value!=0){
+          if(document.getElementById("mes").value!=0){
+              if(document.getElementById("año").value!=0){
+        bandera=true;
+    }
+        
+    }
+        
+    }  
+    }
+    return bandera;
+}
+
+
+
+
+
+
+function generarReporte(){
+    if(validacion()){
+    let myTable= "<table style='width:30 border:1 cellpadding:1 cellspacing:1 bordercolor:#00000'>";
+    myTable+="<thead>"+"Nombre del responsable:"+ document.getElementById("usuario").value+ "</thead>";
+    
+    myTable+= "<tr><th>ID</th><th>IdProducto</th>";
+    myTable+="<th>Cantidad Vendida</th>";
+    myTable+="<th>Ventas</th>";
+    myTable+="<th>Mes</th></tr>";
+    for (var i=0;i<listaVentas.length;i++) {
+        if(listaVentas[i].Mes==document.getElementById("mes").value){
+          myTable+="<tr><td style='width: 100px;text-align: center;'>" + listaVentas[i].Id + "</td>";        
+          myTable+="<td style='width: 100px;text-align: center;'>" + listaVentas[i].IdProducto + "</td>";    
+          myTable+="<td style='width: 100px;text-align: center;'>" + listaVentas[i].CantidadVendida + "</td>";    
+          myTable+="<td style='width: 100px;text-align: center;'>" + listaVentas[i].Ganancia + "</td>"; 
+          myTable+="<td style='width: 100px;text-align: center;'>" + listaVentas[i].Mes + "</td></tr>";
+          }
+    }
+
+ myTable+="<tr><th>Total de gastos en compras</th>";
+   myTable+="<td>"+ "$" + obtenerCompras(document.getElementById("mes").value)  + "</td>"; 
+myTable+="<th>Total de ventas</th>";
+myTable+="<td colspan=2>"+ "$" + obtenerVentas(document.getElementById("mes").value) + "</td></tr>";    
+ myTable+="<tr><th colspan=5 style='width: 100px; text-align: center;'>"+"Fecha de reporte"+"</th></tr>";     
+   myTable+="<tr><td colspan=5 style=' text-align: center;'>" +document.getElementById("dia").value+"/"+document.getElementById("mes").value+"/"+document.getElementById("año").value+"</td></tr>";
+   
+      myTable+="</table>";
+     
+      document.getElementById('tablePrint').innerHTML = myTable;
+
+
+    }
+    else{
+    alert("Espacios sin definir, favor de ingresar todos los datos!");
+  }
+
+}
+
+</script>
+
